@@ -119,3 +119,22 @@ def get_saved_teams():
     conn.close()
 
     return teams
+
+# ================= LEADERBOARD =================
+
+def get_leaderboard():
+
+    conn = connect_db()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT team_name, value
+        FROM teams
+        ORDER BY value DESC
+    """)
+
+    leaderboard = cur.fetchall()
+
+    conn.close()
+
+    return leaderboard

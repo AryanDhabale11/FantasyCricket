@@ -1,6 +1,12 @@
 from tkinter import *
 from tkinter import messagebox
-from database import fetch_players, save_team, get_saved_teams
+from database import (
+    fetch_players,
+    save_team,
+    get_saved_teams,
+    get_leaderboard
+)
+
 from scoring import calculate_points
 
 # ================= MAIN WINDOW =================
@@ -8,7 +14,7 @@ from scoring import calculate_points
 root = Tk()
 
 root.title("Fantasy Cricket League")
-root.geometry("1150x850")
+root.geometry("1150x920")
 root.configure(bg="#0f172a")
 root.resizable(False, False)
 
@@ -84,7 +90,6 @@ def add_player(event):
 
     player = available_list.get(selected)
 
-    # Prevent duplicate players
     if player in selected_players:
         messagebox.showwarning(
             "Duplicate Player",
@@ -92,7 +97,6 @@ def add_player(event):
         )
         return
 
-    # Max 11 players
     if selected_count >= 11:
         messagebox.showwarning(
             "Team Full",
@@ -100,14 +104,12 @@ def add_player(event):
         )
         return
 
-    # Add player
     selected_players.append(player)
 
     selected_list.insert(END, player)
 
     available_list.delete(selected)
 
-    # Update stats
     used_points += 10
     selected_count += 1
 
@@ -131,16 +133,14 @@ def remove_player(event):
 
     selected_list.delete(selected)
 
-    # Add back to available list
     available_list.insert(END, player)
 
-    # Update stats
     used_points -= 10
     selected_count -= 1
 
     update_labels()
 
-    # ================= SAVE TEAM =================
+# ================= SAVE TEAM =================
 
 def save_team_data():
 
@@ -177,7 +177,6 @@ def view_teams():
 
     teams = get_saved_teams()
 
-    # New Window
     team_window = Toplevel(root)
 
     team_window.title("Saved Teams")
@@ -221,7 +220,7 @@ def view_teams():
 
         team_listbox.insert(END, display_text)
 
-        # ================= SCORE CALCULATOR =================
+# ================= SCORE CALCULATOR =================
 
 def open_score_calculator():
 
@@ -311,7 +310,6 @@ def open_score_calculator():
 
     result_label.pack(pady=20)
 
-    # Calculate Function
     def calculate():
 
         try:
@@ -356,6 +354,58 @@ def open_score_calculator():
 
     calculate_btn.pack(pady=10)
 
+# ================= LEADERBOARD WINDOW =================
+
+def open_leaderboard():
+
+    leaderboard_data = get_leaderboard()
+
+    board_window = Toplevel(root)
+
+    board_window.title("Fantasy Leaderboard")
+    board_window.geometry("650x500")
+    board_window.configure(bg="#0f172a")
+
+    title = Label(
+        board_window,
+        text="🏆 Fantasy Leaderboard",
+        font=("Segoe UI", 24, "bold"),
+        bg="#0f172a",
+        fg="#facc15"
+    )
+
+    title.pack(pady=20)
+
+    leaderboard_list = Listbox(
+        board_window,
+        width=60,
+        height=18,
+        font=("Consolas", 13),
+        bg="#1e293b",
+        fg="white",
+        selectbackground="#38bdf8",
+        bd=0
+    )
+
+    leaderboard_list.pack(pady=20)
+
+    rank = 1
+
+    for team in leaderboard_data:
+
+        team_name = team[0]
+        score = team[1]
+
+        line = (
+            f"#{rank}   "
+            f"{team_name}   "
+            f"Score: {score}"
+        )
+
+        leaderboard_list.insert(END, line)
+
+        rank += 1
+
 # ================= TITLE =================
 
 title = Label(
@@ -397,7 +447,7 @@ team_entry.grid(row=0, column=1, padx=10)
 
 # ================= MAIN CONTENT =================
 
-main_frame = Frame(root, bg="#259bb3")
+main_frame = Frame(root, bg="#0f172a")
 main_frame.pack(pady=5)
 
 # ================= CATEGORY CARD =================
@@ -468,7 +518,6 @@ available_list = Listbox(
 
 available_card.create_window(170, 230, window=available_list)
 
-# Double click to add player
 available_list.bind("<Double-Button-1>", add_player)
 
 # ================= SELECTED PLAYERS CARD =================
@@ -500,7 +549,6 @@ selected_list = Listbox(
 
 selected_card.create_window(170, 230, window=selected_list)
 
-# Double click to remove player
 selected_list.bind("<Double-Button-1>", remove_player)
 
 # ================= BOTTOM INFO =================
@@ -538,57 +586,78 @@ players_label = Label(
 
 players_label.grid(row=0, column=2, padx=25)
 
+# ================= BUTTON FRAME =================
+
+button_frame = Frame(root, bg="#0f172a")
+button_frame.pack(pady=15)
+
 # ================= SAVE BUTTON =================
 
 save_button = Button(
-    root,
+    button_frame,
     text="💾 Save Team",
-    font=("Segoe UI", 13, "bold"),
+    font=("Segoe UI", 12, "bold"),
     bg="#B70E0E",
     fg="white",
     bd=0,
-    padx=20,
+    padx=18,
     pady=10,
     cursor="hand2",
     command=save_team_data
 )
 
-save_button.pack(pady=3)
+save_button.grid(row=0, column=0, padx=10)
 
 # ================= VIEW TEAMS BUTTON =================
 
 view_button = Button(
-    root,
-    text="📋 View Saved Teams",
-    font=("Segoe UI", 13, "bold"),
+    button_frame,
+    text="📋 View Teams",
+    font=("Segoe UI", 12, "bold"),
     bg="#f4f4f4",
     fg="black",
     bd=0,
-    padx=20,
+    padx=18,
     pady=10,
     cursor="hand2",
     command=view_teams
 )
 
-view_button.pack(pady=3)
+view_button.grid(row=0, column=1, padx=10)
 
 # ================= CALCULATOR BUTTON =================
 
 calculator_button = Button(
-    root,
-    text="🧮 Fantasy Calculator",
-    font=("Segoe UI", 13, "bold"),
+    button_frame,
+    text="🧮 Calculator",
+    font=("Segoe UI", 12, "bold"),
     bg="#facc15",
     fg="black",
     bd=0,
-    padx=20,
+    padx=18,
     pady=10,
     cursor="hand2",
     command=open_score_calculator
 )
 
-calculator_button.pack(pady=3)
+calculator_button.grid(row=0, column=2, padx=10)
 
+# ================= LEADERBOARD BUTTON =================
+
+leaderboard_button = Button(
+    button_frame,
+    text="🏆 Leaderboard",
+    font=("Segoe UI", 12, "bold"),
+    bg="#f97316",
+    fg="white",
+    bd=0,
+    padx=18,
+    pady=10,
+    cursor="hand2",
+    command=open_leaderboard
+)
+
+leaderboard_button.grid(row=0, column=3, padx=10)
 # ================= RUN APP =================
 
 root.mainloop()
