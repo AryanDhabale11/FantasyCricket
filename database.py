@@ -105,3 +105,17 @@ def save_team(team_name, players, value):
 
     conn.commit()
     conn.close()
+
+    # Fetch Saved Teams
+def get_saved_teams():
+
+    conn = connect_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT * FROM teams")
+
+    teams = cur.fetchall()
+
+    conn.close()
+
+    return teams

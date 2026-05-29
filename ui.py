@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
-from database import fetch_players, save_team
+from database import fetch_players, save_team, get_saved_teams
 
 # ================= MAIN WINDOW =================
 
@@ -170,6 +170,55 @@ def save_team_data():
         "Team saved successfully!"
     )
 
+# ================= VIEW SAVED TEAMS =================
+
+def view_teams():
+
+    teams = get_saved_teams()
+
+    # New Window
+    team_window = Toplevel(root)
+
+    team_window.title("Saved Teams")
+    team_window.geometry("700x500")
+    team_window.configure(bg="#0f172a")
+
+    title = Label(
+        team_window,
+        text="📋 Saved Fantasy Teams",
+        font=("Segoe UI", 22, "bold"),
+        bg="#0f172a",
+        fg="#38bdf8"
+    )
+
+    title.pack(pady=20)
+
+    team_listbox = Listbox(
+        team_window,
+        width=80,
+        height=20,
+        font=("Consolas", 11),
+        bg="#1e293b",
+        fg="white",
+        selectbackground="#38bdf8",
+        bd=0
+    )
+
+    team_listbox.pack(pady=20)
+
+    for team in teams:
+
+        team_name = team[0]
+        players = team[1]
+        value = team[2]
+
+        display_text = (
+            f"Team: {team_name} | "
+            f"Points Used: {value} | "
+            f"Players: {players}"
+        )
+
+        team_listbox.insert(END, display_text)
 # ================= TITLE =================
 
 title = Label(
@@ -369,6 +418,22 @@ save_button = Button(
 
 save_button.pack(pady=5)
 
+# ================= VIEW TEAMS BUTTON =================
+
+view_button = Button(
+    root,
+    text="📋 View Saved Teams",
+    font=("Segoe UI", 13, "bold"),
+    bg="#38bdf8",
+    fg="black",
+    bd=0,
+    padx=20,
+    pady=10,
+    cursor="hand2",
+    command=view_teams
+)
+
+view_button.pack(pady=5)
 # ================= RUN APP =================
 
 root.mainloop()
