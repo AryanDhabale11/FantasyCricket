@@ -1,13 +1,14 @@
 from tkinter import *
 from tkinter import messagebox
 from database import fetch_players, save_team, get_saved_teams
+from scoring import calculate_points
 
 # ================= MAIN WINDOW =================
 
 root = Tk()
 
 root.title("Fantasy Cricket League")
-root.geometry("1150x750")
+root.geometry("1150x850")
 root.configure(bg="#0f172a")
 root.resizable(False, False)
 
@@ -219,6 +220,142 @@ def view_teams():
         )
 
         team_listbox.insert(END, display_text)
+
+        # ================= SCORE CALCULATOR =================
+
+def open_score_calculator():
+
+    calc_window = Toplevel(root)
+
+    calc_window.title("Fantasy Points Calculator")
+    calc_window.geometry("500x600")
+    calc_window.configure(bg="#0f172a")
+
+    title = Label(
+        calc_window,
+        text="🏏 Fantasy Points Calculator",
+        font=("Segoe UI", 20, "bold"),
+        bg="#0f172a",
+        fg="#38bdf8"
+    )
+
+    title.pack(pady=20)
+
+    # Runs
+    Label(
+        calc_window,
+        text="Runs:",
+        font=("Segoe UI", 12),
+        bg="#0f172a",
+        fg="white"
+    ).pack()
+
+    runs_entry = Entry(calc_window, font=("Segoe UI", 12))
+    runs_entry.pack(pady=5)
+
+    # Fours
+    Label(
+        calc_window,
+        text="Fours:",
+        font=("Segoe UI", 12),
+        bg="#0f172a",
+        fg="white"
+    ).pack()
+
+    fours_entry = Entry(calc_window, font=("Segoe UI", 12))
+    fours_entry.pack(pady=5)
+
+    # Sixes
+    Label(
+        calc_window,
+        text="Sixes:",
+        font=("Segoe UI", 12),
+        bg="#0f172a",
+        fg="white"
+    ).pack()
+
+    sixes_entry = Entry(calc_window, font=("Segoe UI", 12))
+    sixes_entry.pack(pady=5)
+
+    # Wickets
+    Label(
+        calc_window,
+        text="Wickets:",
+        font=("Segoe UI", 12),
+        bg="#0f172a",
+        fg="white"
+    ).pack()
+
+    wickets_entry = Entry(calc_window, font=("Segoe UI", 12))
+    wickets_entry.pack(pady=5)
+
+    # Catches
+    Label(
+        calc_window,
+        text="Catches:",
+        font=("Segoe UI", 12),
+        bg="#0f172a",
+        fg="white"
+    ).pack()
+
+    catches_entry = Entry(calc_window, font=("Segoe UI", 12))
+    catches_entry.pack(pady=5)
+
+    result_label = Label(
+        calc_window,
+        text="Total Points: 0",
+        font=("Segoe UI", 16, "bold"),
+        bg="#0f172a",
+        fg="#22c55e"
+    )
+
+    result_label.pack(pady=20)
+
+    # Calculate Function
+    def calculate():
+
+        try:
+
+            runs = int(runs_entry.get())
+            fours = int(fours_entry.get())
+            sixes = int(sixes_entry.get())
+            wickets = int(wickets_entry.get())
+            catches = int(catches_entry.get())
+
+            total = calculate_points(
+                runs,
+                fours,
+                sixes,
+                wickets,
+                catches
+            )
+
+            result_label.config(
+                text=f"Total Points: {total}"
+            )
+
+        except:
+
+            messagebox.showerror(
+                "Invalid Input",
+                "Please enter valid numbers!"
+            )
+
+    calculate_btn = Button(
+        calc_window,
+        text="Calculate Points",
+        font=("Segoe UI", 12, "bold"),
+        bg="#22c55e",
+        fg="white",
+        bd=0,
+        padx=20,
+        pady=10,
+        cursor="hand2",
+        command=calculate
+    )
+
+    calculate_btn.pack(pady=10)
+
 # ================= TITLE =================
 
 title = Label(
@@ -260,8 +397,8 @@ team_entry.grid(row=0, column=1, padx=10)
 
 # ================= MAIN CONTENT =================
 
-main_frame = Frame(root, bg="#0f172a")
-main_frame.pack(pady=15)
+main_frame = Frame(root, bg="#259bb3")
+main_frame.pack(pady=5)
 
 # ================= CATEGORY CARD =================
 
@@ -407,7 +544,7 @@ save_button = Button(
     root,
     text="💾 Save Team",
     font=("Segoe UI", 13, "bold"),
-    bg="#22c55e",
+    bg="#B70E0E",
     fg="white",
     bd=0,
     padx=20,
@@ -416,7 +553,7 @@ save_button = Button(
     command=save_team_data
 )
 
-save_button.pack(pady=5)
+save_button.pack(pady=3)
 
 # ================= VIEW TEAMS BUTTON =================
 
@@ -424,7 +561,7 @@ view_button = Button(
     root,
     text="📋 View Saved Teams",
     font=("Segoe UI", 13, "bold"),
-    bg="#38bdf8",
+    bg="#f4f4f4",
     fg="black",
     bd=0,
     padx=20,
@@ -433,7 +570,25 @@ view_button = Button(
     command=view_teams
 )
 
-view_button.pack(pady=5)
+view_button.pack(pady=3)
+
+# ================= CALCULATOR BUTTON =================
+
+calculator_button = Button(
+    root,
+    text="🧮 Fantasy Calculator",
+    font=("Segoe UI", 13, "bold"),
+    bg="#facc15",
+    fg="black",
+    bd=0,
+    padx=20,
+    pady=10,
+    cursor="hand2",
+    command=open_score_calculator
+)
+
+calculator_button.pack(pady=3)
+
 # ================= RUN APP =================
 
 root.mainloop()
