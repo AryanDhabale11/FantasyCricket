@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 from database import fetch_players
 
 # ================= MAIN WINDOW =================
@@ -9,6 +10,14 @@ root.title("Fantasy Cricket League")
 root.geometry("1150x650")
 root.configure(bg="#0f172a")
 root.resizable(False, False)
+
+# ================= VARIABLES =================
+
+total_points = 100
+used_points = 0
+selected_count = 0
+
+selected_players = []
 
 # ================= CARD FUNCTION =================
 
@@ -33,19 +42,102 @@ def create_card(parent, width, height, color):
 
     return canvas
 
-# ================= SHOW PLAYERS FUNCTION =================
+# ================= UPDATE LABELS =================
+
+def update_labels():
+
+    points_label.config(
+        text=f"💰 Points Available : {total_points - used_points}"
+    )
+
+    used_label.config(
+        text=f"📊 Points Used : {used_points}"
+    )
+
+    players_label.config(
+        text=f"👥 Players Selected : {selected_count}"
+    )
+
+# ================= SHOW PLAYERS =================
 
 def show_players(category):
 
-    # Clear old players
     available_list.delete(0, END)
 
-    # Fetch players from database
     players = fetch_players(category)
 
-    # Insert players into listbox
     for player in players:
         available_list.insert(END, player[0])
+
+# ================= ADD PLAYER =================
+
+def add_player(event):
+
+    global used_points
+    global selected_count
+
+    selected = available_list.curselection()
+
+    if not selected:
+        return
+
+    player = available_list.get(selected)
+
+    # Prevent duplicate players
+    if player in selected_players:
+        messagebox.showwarning(
+            "Duplicate Player",
+            "Player already selected!"
+        )
+        return
+
+    # Max 11 players
+    if selected_count >= 11:
+        messagebox.showwarning(
+            "Team Full",
+            "You can select only 11 players!"
+        )
+        return
+
+    # Add player
+    selected_players.append(player)
+
+    selected_list.insert(END, player)
+
+    available_list.delete(selected)
+
+    # Update stats
+    used_points += 10
+    selected_count += 1
+
+    update_labels()
+
+# ================= REMOVE PLAYER =================
+
+def remove_player(event):
+
+    global used_points
+    global selected_count
+
+    selected = selected_list.curselection()
+
+    if not selected:
+        return
+
+    player = selected_list.get(selected)
+
+    selected_players.remove(player)
+
+    selected_list.delete(selected)
+
+    # Add back to available list
+    available_list.insert(END, player)
+
+    # Update stats
+    used_points -= 10
+    selected_count -= 1
+
+    update_labels()
 
 # ================= TITLE =================
 
@@ -159,6 +251,9 @@ available_list = Listbox(
 
 available_card.create_window(170, 230, window=available_list)
 
+# Double click to add player
+available_list.bind("<Double-Button-1>", add_player)
+
 # ================= SELECTED PLAYERS CARD =================
 
 selected_card = create_card(main_frame, 340, 430, "#1e293b")
@@ -187,6 +282,9 @@ selected_list = Listbox(
 )
 
 selected_card.create_window(170, 230, window=selected_list)
+
+# Double click to remove player
+selected_list.bind("<Double-Button-1>", remove_player)
 
 # ================= BOTTOM INFO =================
 
