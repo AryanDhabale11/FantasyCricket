@@ -89,3 +89,19 @@ create_tables()
 insert_players()
 
 print("Database Ready!")
+
+# Save Team
+def save_team(team_name, players, value):
+
+    conn = connect_db()
+    cur = conn.cursor()
+
+    players_string = ",".join(players)
+
+    cur.execute(
+        "INSERT INTO teams VALUES (?, ?, ?)",
+        (team_name, players_string, value)
+    )
+
+    conn.commit()
+    conn.close()

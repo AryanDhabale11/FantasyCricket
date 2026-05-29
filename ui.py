@@ -1,13 +1,13 @@
 from tkinter import *
 from tkinter import messagebox
-from database import fetch_players
+from database import fetch_players, save_team
 
 # ================= MAIN WINDOW =================
 
 root = Tk()
 
 root.title("Fantasy Cricket League")
-root.geometry("1150x650")
+root.geometry("1150x750")
 root.configure(bg="#0f172a")
 root.resizable(False, False)
 
@@ -139,6 +139,37 @@ def remove_player(event):
 
     update_labels()
 
+    # ================= SAVE TEAM =================
+
+def save_team_data():
+
+    team_name = team_entry.get()
+
+    if team_name == "":
+        messagebox.showwarning(
+            "Missing Team Name",
+            "Please enter a team name!"
+        )
+        return
+
+    if selected_count != 11:
+        messagebox.showwarning(
+            "Incomplete Team",
+            "Select exactly 11 players!"
+        )
+        return
+
+    save_team(
+        team_name,
+        selected_players,
+        used_points
+    )
+
+    messagebox.showinfo(
+        "Success",
+        "Team saved successfully!"
+    )
+
 # ================= TITLE =================
 
 title = Label(
@@ -181,7 +212,7 @@ team_entry.grid(row=0, column=1, padx=10)
 # ================= MAIN CONTENT =================
 
 main_frame = Frame(root, bg="#0f172a")
-main_frame.pack(pady=25)
+main_frame.pack(pady=15)
 
 # ================= CATEGORY CARD =================
 
@@ -320,6 +351,23 @@ players_label = Label(
 )
 
 players_label.grid(row=0, column=2, padx=25)
+
+# ================= SAVE BUTTON =================
+
+save_button = Button(
+    root,
+    text="💾 Save Team",
+    font=("Segoe UI", 13, "bold"),
+    bg="#22c55e",
+    fg="white",
+    bd=0,
+    padx=20,
+    pady=10,
+    cursor="hand2",
+    command=save_team_data
+)
+
+save_button.pack(pady=5)
 
 # ================= RUN APP =================
 
