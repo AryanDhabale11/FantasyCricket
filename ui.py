@@ -4,7 +4,9 @@ from database import (
     fetch_players,
     save_team,
     get_saved_teams,
-    get_leaderboard
+    get_leaderboard,
+    delete_team,
+    search_team
 )
 
 from scoring import calculate_points
@@ -14,7 +16,7 @@ from scoring import calculate_points
 root = Tk()
 
 root.title("Fantasy Cricket League")
-root.geometry("1150x920")
+root.geometry("1280x920")
 root.configure(bg="#0f172a")
 root.resizable(False, False)
 
@@ -405,6 +407,133 @@ def open_leaderboard():
         leaderboard_list.insert(END, line)
 
         rank += 1
+# ================= TEAM MANAGER =================
+
+def open_team_manager():
+
+    manager = Toplevel(root)
+
+    manager.title("Team Manager")
+    manager.geometry("750x550")
+    manager.configure(bg="#0f172a")
+
+    title = Label(
+        manager,
+        text="⚙️ Team Manager",
+        font=("Segoe UI", 24, "bold"),
+        bg="#0f172a",
+        fg="#38bdf8"
+    )
+
+    title.pack(pady=15)
+
+    # Search Box
+    search_entry = Entry(
+        manager,
+        width=30,
+        font=("Segoe UI", 13),
+        bg="#334155",
+        fg="white",
+        insertbackground="white",
+        bd=0
+    )
+
+    search_entry.pack(pady=10)
+
+    # Team List
+    team_listbox = Listbox(
+        manager,
+        width=80,
+        height=18,
+        font=("Consolas", 11),
+        bg="#1e293b",
+        fg="white",
+        selectbackground="#38bdf8",
+        bd=0
+    )
+
+    team_listbox.pack(pady=20)
+
+    # Load Teams
+    def load_teams(data):
+
+        team_listbox.delete(0, END)
+
+        for team in data:
+
+            team_name = team[0]
+            players = team[1]
+            points = team[2]
+
+            line = (
+                f"{team_name} | "
+                f"Points: {points} | "
+                f"{players}"
+            )
+
+            team_listbox.insert(END, line)
+
+    # Initial Load
+    load_teams(get_saved_teams())
+
+    # Search Function
+    def search():
+
+        keyword = search_entry.get()
+
+        result = search_team(keyword)
+
+        load_teams(result)
+
+    # Delete Function
+    def delete_selected():
+
+        selected = team_listbox.curselection()
+
+        if not selected:
+            return
+
+        line = team_listbox.get(selected)
+
+        team_name = line.split("|")[0].strip()
+
+        delete_team(team_name)
+
+        messagebox.showinfo(
+            "Deleted",
+            "Team deleted successfully!"
+        )
+
+        load_teams(get_saved_teams())
+
+    # Buttons
+    search_btn = Button(
+        manager,
+        text="🔍 Search",
+        font=("Segoe UI", 11, "bold"),
+        bg="#38bdf8",
+        fg="black",
+        bd=0,
+        padx=15,
+        pady=8,
+        command=search
+    )
+
+    search_btn.pack(pady=5)
+
+    delete_btn = Button(
+        manager,
+        text="🗑 Delete Team",
+        font=("Segoe UI", 11, "bold"),
+        bg="#ef4444",
+        fg="white",
+        bd=0,
+        padx=15,
+        pady=8,
+        command=delete_selected
+    )
+
+    delete_btn.pack(pady=5)
 
 # ================= TITLE =================
 
@@ -658,6 +787,25 @@ leaderboard_button = Button(
 )
 
 leaderboard_button.grid(row=0, column=3, padx=10)
+
+# ================= TEAM MANAGER BUTTON =================
+
+manager_button = Button(
+    button_frame,
+    text="⚙️ Team Manager",
+    font=("Segoe UI", 12, "bold"),
+    bg="#8b5cf6",
+    fg="white",
+    bd=0,
+    padx=18,
+    pady=10,
+    cursor="hand2",
+    command=open_team_manager
+)
+
+manager_button.grid(row=0, column=4, padx=10)
+
+
 # ================= RUN APP =================
 
 root.mainloop()

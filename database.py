@@ -138,3 +138,38 @@ def get_leaderboard():
     conn.close()
 
     return leaderboard
+
+# ================= DELETE TEAM =================
+
+def delete_team(team_name):
+
+    conn = connect_db()
+    cur = conn.cursor()
+
+    cur.execute(
+        "DELETE FROM teams WHERE team_name=?",
+        (team_name,)
+    )
+
+    conn.commit()
+    conn.close()
+
+
+# ================= SEARCH TEAM =================
+
+def search_team(name):
+
+    conn = connect_db()
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT * FROM teams WHERE team_name LIKE ?",
+        ('%' + name + '%',)
+    )
+
+    result = cur.fetchall()
+
+    conn.close()
+
+    return result
+
