@@ -1,4 +1,5 @@
 from tkinter import *
+from database import fetch_players
 
 # ================= MAIN WINDOW =================
 
@@ -21,17 +22,30 @@ def create_card(parent, width, height, color):
         highlightthickness=0
     )
 
-    # Rounded effect
     canvas.create_rectangle(
         15,
         15,
-        width-15,
-        height-15,
+        width - 15,
+        height - 15,
         fill=color,
         outline=color
     )
 
     return canvas
+
+# ================= SHOW PLAYERS FUNCTION =================
+
+def show_players(category):
+
+    # Clear old players
+    available_list.delete(0, END)
+
+    # Fetch players from database
+    players = fetch_players(category)
+
+    # Insert players into listbox
+    for player in players:
+        available_list.insert(END, player[0])
 
 # ================= TITLE =================
 
@@ -108,7 +122,8 @@ for category in categories:
         fg="black",
         activebackground="#0ea5e9",
         bd=0,
-        cursor="hand2"
+        cursor="hand2",
+        command=lambda c=category: show_players(c)
     )
 
     category_card.create_window(110, y_position, window=btn)
@@ -143,33 +158,6 @@ available_list = Listbox(
 )
 
 available_card.create_window(170, 230, window=available_list)
-
-# Demo Players
-players = [
-    "Virat Kohli",
-    "Rohit Sharma",
-    "Shubman Gill",
-    "KL Rahul",
-    "Suryakumar Yadav",
-    "Hardik Pandya",
-    "Ravindra Jadeja",
-    "Axar Patel",
-    "Rishabh Pant",
-    "MS Dhoni",
-    "Ishan Kishan",
-    "Jasprit Bumrah",
-    "Mohammed Shami",
-    "Mohammed Siraj",
-    "Bhuvneshwar Kumar",
-    "Yuzvendra Chahal",
-    "Kuldeep Yadav",
-    "Ruturaj Gaikwad",
-    "Sanju Samson",
-    "Arshdeep Singh"
-]
-
-for player in players:
-    available_list.insert(END, player)
 
 # ================= SELECTED PLAYERS CARD =================
 
